@@ -18,9 +18,9 @@ import queue
 
 from win32com.server import exception
 
-#variables
+# variables
 global_queue = queue.Queue()
-waiting_matriz = np.full((50,50,100),None,dtype=object)
+waiting_matriz = np.full((50, 50, 100), None, dtype=object)
 event = threading.Event()
 hec = None
 running = False
@@ -28,24 +28,28 @@ numb_simulation_waiting = 0
 numb_simulation_done = 0
 dir_project = None
 plano_alvo = None
-#clsid hecras
-#id = "{6EED89FF-61FA-4FDF-ADDF-1A634B07DA7D}"
+# clsid hecras
+# id = "{6EED89FF-61FA-4FDF-ADDF-1A634B07DA7D}"
 parar_monitor = threading.Event()
-#to orgfanize data numb
+# to orgfanize data numb
 numb_actlly = 0
-
 
 """arquivos de breach em plan: Breach Geom=35,50,55,2.8,2.8,False,0.5,,0.7,2.8
 Breach Start=True,69,22SEP2026,04:00,False,69,2,0"""
+
 
 class Backend():
 
     def __init__(self):
         self.RV = False
 
-    #to inicialize the api com
+    # to inicialize the api com
 
     def localize_lcid(self, nome_coclass=None):
+
+        #using the selecttlb to acess the key listed
+        #getting the name on the regtypelib and connecting
+
 
         tlb = selecttlb.EnumTlbs()
 
@@ -79,9 +83,8 @@ class Backend():
     def inicializer(slef, caminhofl):
         global id
         global hec
-        #id = "RAS70.HECRASController"
+        # id = "RAS70.HECRASController"
         try:
-
 
             print("Inicializando o RAS...")
             id = Backend().localize_lcid("HECRASController")
@@ -90,38 +93,41 @@ class Backend():
 
             # Puxando a versão do jeito correto
             print(f"{'-' * 20}RAS inicializado com sucesso!{'-' * 20}\n Versão: {hec.HECRASVersion()}")
-            #hec.ShowRas()
-            x = [f'HECRAS inicializado com sucesso',f'Versão: {hec.HECRASVersion()}', Backend().open_project(hec, caminhofl) ]
+            # hec.ShowRas()
+            x = [f'HECRAS inicializado com sucesso', f'Versão: {hec.HECRASVersion()}',
+                 Backend().open_project(hec, caminhofl)]
             return x
 
 
         except Exception as e:
-            return  f"Erro: {e}"
-    #open the project and send the plans
-    def open_project(self,hec, camnh):
-        #hec.ShowRas()
+            return f"Erro: {e}"
+
+    # open the project and send the plans
+    def open_project(self, hec, camnh):
+        # hec.ShowRas()
         global dir_project
         global waiting_matriz
 
         thread_ = None
-        if dir_project is None and running==False:
+        if dir_project is None and running == False:
             while True:
-                #openning project
+                # openning project
                 # #so, hec.Project_Open() doesnt return 'true' or 'false' but None.
                 # I checked with re by self affinity but the result of no found directory is: empty (' '), using hec.CurrentProjectTitle()
                 dir_project = camnh
                 hec.Project_Open(f"{dir_project}")
                 if re.match(r"\s", hec.CurrentProjectTitle()):
-                    #print(f"Projeto ativo: {hec.CurrentProjectTitle()}")
+                    # print(f"Projeto ativo: {hec.CurrentProjectTitle()}")
                     print("\n NÃO ENCONTRADO - Insira o caminho do projeto novamente\n")
                 else:
                     raw_plan = hec.Plan_Names(None, None, None)
                     plan_count, plan_names, *restos = raw_plan
-                    print(plan_count,plan_names)
+                    print(plan_count, plan_names)
                     return plan_names
                     break
-    #def for select the plans
-    def select_plan(self,opt_plano):
+
+    # def for select the plans
+    def select_plan(self, opt_plano):
         global plano_alvo
         plano_alvo = opt_plano
         hec.Plan_SetCurrent(plano_alvo)
@@ -129,46 +135,43 @@ class Backend():
         geom = hec.CurrentGeomFile()
         unsteady = hec.CurrentUnSteadyFile()
         print(f"-{unsteady}-")
-        waiting_matriz[0,1,1] = bco
+        waiting_matriz[0, 1, 1] = bco
         with open(bco, 'r', encoding='utf-8', errors='ignore') as f:
-             waiting_matriz[0, 1, 0] = f.read()
-        return  bco,geom,unsteady, waiting_matriz[0,1,0].split()
-
-       
+            waiting_matriz[0, 1, 0] = f.read()
+        return bco, geom, unsteady, waiting_matriz[0, 1, 0].split()
 
     def change_guid(self, file):
         if running == True:
             try:
                 print("changing")
-                change = re.sub(fr"Short Identifier=\d*\w*(\s*)",rf"\g<1>_{numb_actlly}_",file)
+                change = re.sub(fr"Short Identifier=\d*\w*(\s*)", rf"\g<1>_{numb_actlly}_", file)
                 return change
             except Exception as e:
                 print(f"ERRO: {e}")
                 return file
 
-
-    #there is a problem here
-    #take a look at
-    #change data, cause its something wrong
+    # there is a problem here
+    # take a look at
+    # change data, cause its something wrong
 
     def change_run_window(self, *lista):
-        #plano = plano_alvo
-        #print("runinininin")
-        #date structure in file splited
-        #\'Date=07SEP2026,00:00,07SEP2026,05:00\'
-        #date = re.search(r'Date=(\d+\w+\d+\),(\d*),(\d+\w+\d+),(\d*)
-        #if <date variables> != None
-        #change = re.sub(
+        # plano = plano_alvo
+        # print("runinininin")
+        # date structure in file splited
+        # \'Date=07SEP2026,00:00,07SEP2026,05:00\'
+        # date = re.search(r'Date=(\d+\w+\d+\),(\d*),(\d+\w+\d+),(\d*)
+        # if <date variables> != None
+        # change = re.sub(
         if running == True:
             # with open(plan_dir,'r', encoding='utf-8', errors='ignore') as f:
             global numb_simulation_waiting
             global waiting_matriz
 
-            numb_simulation_waiting+=1
+            numb_simulation_waiting += 1
             try:
                 print("beginning the editing while running")
-                #print(waiting_matriz[numb_simulation_waiting - 1, 1, 0])
-                #open the waiting matriz and find in the last file - if the first editing, find in the original file
+                # print(waiting_matriz[numb_simulation_waiting - 1, 1, 0])
+                # open the waiting matriz and find in the last file - if the first editing, find in the original file
                 computation = re.search(r"Computation Interval=(\d+\w+)",
                                         waiting_matriz[numb_simulation_waiting - 1, 1, 0])
                 profile = re.search(r"Instantaneous Interval=(\d+\w+)",
@@ -190,32 +193,43 @@ class Backend():
                 if hydrograph:
                     hydrograph_result = hydrograph.group(1)
 
-                if isinstance(lista[0], str):
-                    change = re.sub(r"(Computation Interval=)\d+(\w+)", rf"\g<1>{lista[0]}\g<2>",
-                                    waiting_matriz[0, 1, 0])
-                else:
-                    change = waiting_matriz[0, 1, 0]
-                if isinstance(lista[1], str):
-                    change = re.sub(r"(Instantaneous Interval=)\d+(\w+)", rf"\g<1>{lista[1]}\g<2>", change)
-                if isinstance(lista[2], str):
-                    change = re.sub(r"(Mapping Interval=)\d+(\w+)", rf"\g<1>{lista[2]}\g<2>", change)
-                if isinstance(lista[3], str):
-                    change = re.sub(r"(Output Interval=)\d+(\w+)", rf"\g<1>{lista[3]}\g<2>", change)
-                if isinstance(lista[4], str):
-                    change = re.sub(r"Date=(\d+\w+\d+),(\d*),(\d+\w+\d+),(\d*)",
-                                    rf"{lista[4]},\g<2>,\g<3>,\g<4>", change)
-                if isinstance(lista[5], str):
-                    change = re.sub(r"Date=(\d+\w+\d+),(\d*),(\d+\w+\d+),(\d*)",
-                                    rf"\g<1>,\g<2>,{lista[5]},\g<4>",
-                                    change)
+                if isinstance(lista[0], str) and lista[0]:
+                    change = re.sub(r"Computation Interval=.*", f"Computation Interval={lista[0]}", change)
+
+                if isinstance(lista[1], str) and lista[1]:
+                    change = re.sub(r"Instantaneous Interval=.*", f"Instantaneous Interval={lista[1]}", change)
+
+                if isinstance(lista[2], str) and lista[2]:
+                    change = re.sub(r"Mapping Interval=.*", f"Mapping Interval={lista[2]}", change)
+
+                if isinstance(lista[3], str) and lista[3]:
+                    change = re.sub(r"Output Interval=.*", f"Output Interval={lista[3]}", change)
+
+                # Substituição da Data Inicial (lista[4])
+                #there is a problem here
+                #when we change the date the word 'date' gets out
+                if isinstance(lista[4], str) and lista[4]:
+                    change = re.sub(
+                        r"Date=([^,]+),([^,]+),([^,]+),([^,]+)",
+                        rf"Date={date_start},\g<2>,\g<3>,\g<4>",
+                        change
+                    )
+
+                # Substituição da Data Final (lista[5])
+                if isinstance(lista[5], str) and lista[5]:
+                    change = re.sub(
+                        r"Date=([^,]+),([^,]+),([^,]+),([^,]+)",
+                        rf"Date=\g<1>,\g<2>,{date_end},\g<4>",
+                        change
+                    )
 
                 # change = re.sub(fr"{list(change.split('\n'))[20]}", f"{list(change.split('\n'))[20]}_{numb_simulation_done}", change)
 
                 change = Backend().change_guid(change)
-                #print(change)
-                waiting_matriz[numb_simulation_waiting,1,0] = change
+                # print(change)
+                waiting_matriz[numb_simulation_waiting, 1, 0] = change
                 print(change)
-                return  "DONE!!", change
+                return "DONE!!", change
 
 
             except Exception as e:
@@ -231,18 +245,18 @@ class Backend():
         else:
             # with open(plan_dir,'r', encoding='utf-8', errors='ignore') as f:
             try:
-                print(waiting_matriz[0,1,0])
-            # file_split = list(arquivo_bco.split("\n"))
+                print(waiting_matriz[0, 1, 0])
+                # file_split = list(arquivo_bco.split("\n"))
 
                 # positions: comput 22, profile 24, hydrograph 25
                 # get with search the ocurrance and salved it
-                computation = re.search(r"Computation Interval=(\d+)\w+", waiting_matriz[0,1,0])
-                profile = re.search(r"Instantaneous Interval=(\d+)\w+", waiting_matriz[0,1,0])
-                mapping = re.search(r"Mapping Interval=(\d+)\w+", waiting_matriz[0,1,0])
-                hydrograph = re.search(r"Output Interval=(\d+)\w+", waiting_matriz[0,1,0])
+                computation = re.search(r"Computation Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
+                profile = re.search(r"Instantaneous Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
+                mapping = re.search(r"Mapping Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
+                hydrograph = re.search(r"Output Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
 
-                date_start = lista[4].upper()
-                date_end = lista[5].upper()
+                date_start = str(lista[4]).upper()
+                date_end = str(lista[5]).upper()
 
                 if computation:
                     computation_result = computation.group(1)
@@ -265,11 +279,12 @@ class Backend():
                 if isinstance(lista[3], str):
                     change = re.sub(r"(Output Interval=)\d+(\w+)", rf"\g<1>{lista[3]}\g<2>", change)
                 if isinstance(lista[4], str):
-                    change = re.sub(r"Date=(\d+\w+\d+),(\d*),(\d+\w+\d+),(\d*)",
-                                    rf"{lista[4]},\g<2>,\g<3>,\g<4>", change)
+                    change = re.sub(r"\w*\s*Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
+                                    rf"{date_start},\g<2>,\g<3>,\g<4>", change)
                 if isinstance(lista[5], str):
-                    change = re.sub(r"Date=(\d+\w+\d+),(\d*),(\d+\w+\d+),(\d*)",
-                                    rf"\g<1>,\g<2>,{lista[5]},\g<4>",
+                    print("changing data")
+                    change = re.sub(r"\w*\s*Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
+                                    rf"\g<1>,\g<2>,{date_end},\g<4>",
                                     change)
 
                 try:
@@ -278,7 +293,7 @@ class Backend():
                         f.write(change)
 
                     # change_guid(hec,plano)
-                    #hec.ShowRas()
+                    # hec.ShowRas()
                     waiting_matriz[0, 1, 0] = change
                     hec.Project_Open(dir_project)
                     hec.Plan_SetCurrent(bco)
@@ -286,7 +301,7 @@ class Backend():
                 except Exception as e:
                     return f"ERRO: {e}"
                 print(change)
-                waiting_matriz[(0,0,1)] = change
+                waiting_matriz[(0, 0, 1)] = change
                 hec.QuitRas()
             except Exception as e:
                 print(f"ERRO: {e}")
@@ -301,23 +316,21 @@ class Backend():
         global numb_simulation_done
         global numb_simulation_waiting
 
-
         pythoncom.CoInitialize()
         try:
             print("uhmm")
-            #oppening a new instance of hecras
+            # oppening a new instance of hecras
             hec_bruto = win32com.client.Dispatch(id)
             hec_2 = win32com.client.CastTo(hec_bruto, '_HECRASController')
 
-            #the run button on the frontend still disabled while is running
-            #so in the beggining 'if' statement was necessary, but now no more
+            # the run button on the frontend still disabled while is running
+            # so in the beggining 'if' statement was necessary, but now no more
             try:
 
-
                 hec_2.Project_Open(f"{dir_project}")
-                with open(waiting_matriz[0,1,1], 'w', encoding='utf-8', errors='ignore') as f:
-                    f.write(waiting_matriz[numb_actlly,1,0])
-                hec_2.Plan_SetCurrent(waiting_matriz[0,1,1])
+                with open(waiting_matriz[0, 1, 1], 'w', encoding='utf-8', errors='ignore') as f:
+                    f.write(waiting_matriz[numb_actlly, 1, 0])
+                hec_2.Plan_SetCurrent(waiting_matriz[0, 1, 1])
                 hec_2.Project_Save()
 
                 running = True
@@ -362,32 +375,27 @@ class Backend():
 
                     end_hec(hec_2)
 
-
-
-
                 # if block == True the result is:
                 # (True, 3, ('Starting Unsteady Computations', 'Computing', 'Computations Completed'))
                 # Starting Unsteady Computations
                 print(self.RV, NMsg, TabMsg)
 
+                # geom = hec.CurrentGeomHDFFile()
+                # with h5py.File(fr"{geom}", "r") as f:
+                #   vlm = f['Geometry']['Storage Areas']['Volume Elevation Values'][()]
+                #  att = f['Geometry']['Storage Areas']['Attributes'][()]
+                # vlm_data = pd.DataFrame(vlm)
 
-                #geom = hec.CurrentGeomHDFFile()
-                #with h5py.File(fr"{geom}", "r") as f:
-                 #   vlm = f['Geometry']['Storage Areas']['Volume Elevation Values'][()]
-                  #  att = f['Geometry']['Storage Areas']['Attributes'][()]
-                   # vlm_data = pd.DataFrame(vlm)
+                # print(vlm_data)
+                # there is a problem here, is not running more
 
-                    #print(vlm_data)
-                #there is a problem here, is not running more
+                # geom = hec.CurrentGeomHDFFile()
+                # with h5py.File(fr"{geom}", "r") as f:
+                #   vlm = f['Geometry']['Storage Areas']['Volume Elevation Values'][()]
+                #  att = f['Geometry']['Storage Areas']['Attributes'][()]
+                # vlm_data = pd.DataFrame(vlm)
 
-
-                #geom = hec.CurrentGeomHDFFile()
-                #with h5py.File(fr"{geom}", "r") as f:
-                 #   vlm = f['Geometry']['Storage Areas']['Volume Elevation Values'][()]
-                  #  att = f['Geometry']['Storage Areas']['Attributes'][()]
-                   # vlm_data = pd.DataFrame(vlm)
-
-                    #print(vlm_data)
+                # print(vlm_data)
             except Exception as e:
                 print(f"ERRO: {e}")
 
@@ -395,7 +403,6 @@ class Backend():
             global_queue.put(f"ERRO: {e}")
         finally:
             pythoncom.CoUninitialize()
-
 
     def read_queue(self):
         global global_queue
@@ -408,9 +415,7 @@ class Backend():
             except queue.Empty:
                 break
 
-
         return k
-
 
     def end_hec(self):
         global hec
@@ -426,7 +431,5 @@ class Backend():
         del hec
         print("Script finalizado!")
 
-
     if __name__ == '__main__':
-
         inicializer(id)
