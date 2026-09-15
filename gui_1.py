@@ -54,12 +54,12 @@ class Aplication():
         frame_2 = Frame(pw_3, highlightbackground="black", highlightthickness=1)
         frame_run_info = Frame(pw_2, highlightbackground="black", highlightthickness=1)
         frame_hietograma = Frame(pw_2, highlightbackground="black", highlightthickness=1)
-        frame_breach = Frame(pw_3, highlightbackground='black', highlightthickness=1)
+        frame_breach = Frame(pw_3, highlightbackground="black", highlightthickness=1)
         frame_run_window = Frame(pw_3, highlightbackground='black', highlightthickness=1)
 
         # planedwindows in
-        pw_2.add(frame_1, minsize=700)
-        pw_2.add(frame_run_info, minsize=350)
+        pw_2.add(frame_1, minsize=500)
+        pw_2.add(frame_run_info, minsize=500)
         pw_2.add(frame_hietograma, minsize=350)
         pw_3.add(frame_2, minsize=480)
         pw_3.add(frame_breach, minsize=380)
@@ -347,6 +347,76 @@ class Aplication():
             text="Start", icon="caret-right-fill", bootstyle="info", command=call_run
         )
         btn_start.place(relx=0.02, rely=0.84, relwidth=0.14, relheight=0.10)
+
+        #breach frame place
+        #no constructed yet the send value function to change d file
+        #on the file 'backend_hecras' there is the function to change, but not receive anything
+        centerstat_var = StringVar()
+        bottomwdth_var = StringVar()
+        bottomelv_var = StringVar()
+        leftsd_var = StringVar()
+        rightsd_var = StringVar()
+        breachtm_var = StringVar()
+        breachwr_var = StringVar()
+        startingws_var = StringVar()
+
+
+
+        txt_centerstat = Label(frame_breach, text='Center station:', font=('Arial', 10), anchor='w')
+        txt_centerstat.place(relx=0.02, rely=0.08, relwidth=0.40, relheight=0.07)
+        centerestat_value = Entry(frame_breach, textvariable=centerstat_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        centerestat_value.place(relx=0.50, rely=0.09, relwidth=0.10, relheight=0.07)
+
+        txt_bottomwdth = Label(frame_breach, text='Bottom width:', font=('Arial', 10), anchor='w')
+        txt_bottomwdth.place(relx=0.02, rely=0.17, relwidth=0.40, relheight=0.07)
+        bottomwdth_value = Entry(frame_breach, textvariable=bottomwdth_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        bottomwdth_value.place(relx=0.50, rely=0.18, relwidth=0.10, relheight=0.07)
+
+        txt_bottomelev = Label(frame_breach, text='Bottom elevation:', font=('Arial', 10), anchor='w')
+        txt_bottomelev.place(relx=0.02, rely=0.26, relwidth=0.40, relheight=0.07)
+        bottomelv_value = Entry(frame_breach, textvariable=bottomelv_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        bottomelv_value.place(relx=0.50, rely=0.27, relwidth=0.10, relheight=0.07)
+
+        txt_leftsd = Label(frame_breach, text='Left side slope: ', font=('Arial', 10), anchor='w')
+        txt_leftsd.place(relx=0.02, rely=0.34, relwidth=0.40, relheight=0.07)
+        leftsd_value = Entry(frame_breach, textvariable=leftsd_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        leftsd_value.place(relx=0.50, rely=0.35, relwidth=0.10, relheight=0.07)
+
+        txt_rightsd = Label(frame_breach, text='Right side slope: ', font=('Arial', 10), anchor='w')
+        txt_rightsd.place(relx=0.02, rely=0.42, relwidth=0.40, relheight=0.07)
+        rightsd_value = Entry(frame_breach, textvariable=rightsd_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        rightsd_value.place(relx=0.50, rely=0.44, relwidth=0.10, relheight=0.07)
+
+        txt_breachtm = Label(frame_breach, text='Breach time:', font=('Arial', 10), anchor='w')
+        txt_breachtm.place(relx=0.02, rely=0.50, relwidth=0.40, relheight=0.07)
+        breachtm_value = Entry(frame_breach, textvariable=breachtm_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        breachtm_value.place(relx=0.50, rely=0.52, relwidth=0.10, relheight=0.07)
+
+        txt_breachwr = Label(frame_breach, text='Breach weir: ', font=('Arial', 10), anchor='w')
+        txt_breachwr.place(relx=0.02, rely=0.58, relwidth=0.40, relheight=0.07)
+        breachwr_value = Entry(frame_breach, textvariable=breachwr_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        breachwr_value.place(relx=0.50, rely=0.60, relwidth=0.10, relheight=0.07)
+
+        txt_startngws = Label(frame_breach, text='Starting WS: ', font=('Arial', 10), anchor='w')
+        txt_startngws.place(relx=0.02, rely=0.66, relwidth=0.40, relheight=0.07)
+        startingws_value = Entry(frame_breach, textvariable=startingws_var, highlightcolor='black', justify="left",
+                                  highlightbackground="black",
+                                  highlightthickness=1)
+        startingws_value.place(relx=0.50, rely=0.68, relwidth=0.10, relheight=0.07)
 
 
 if __name__ == "__main__":

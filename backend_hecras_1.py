@@ -405,6 +405,8 @@ class Backend():
         """" 'Breach', 'Geom=35,50,55,2.8,2.8,False,0.5,,0.7,2.8', 'Breach', 'Start=True,69,22SEP2026,04:00,False,69,2,0', 'Breach'"""
         global waiting_matriz
 
+
+
         if running:
             pass
         else:
@@ -421,38 +423,34 @@ class Backend():
             starting_ws = str(lista[7]).upper()
 
             if tem_valor(lista[0]):
-                change = re.sub(r"(Geom=)35([^,]+[^,]+[^,]+)", rf"\g<1>{center_stion}\g<2>",
+                change = re.sub(r"(Geom=)\d*(,\d+.*)", rf"\g<1>{center_stion}\g<2>",
                                 waiting_matriz[0, 1, 0])
             else:
                 change = waiting_matriz[0, 1, 0]
 
             if tem_valor(lista[1]):
-                change = re.sub(r"([^,]+[^,]+[^,]+)50([^,]+[^,]+[^,]+)", rf"\g<1>{bottom_width}", change)
+                change = re.sub(r"(Geom=\d*,)\d*(,\d+.*)", rf"\g<1>{bottom_width}\g<2>",
+                                waiting_matriz[0, 1, 0])
 
             if tem_valor(lista[2]):
-                change = re.sub(r"([^,]+[^,]+[^,]+)55([^,]+[^,]+[^,]+)", rf"\g<1>{mapping_interval}", change)
+                change = re.sub(r"(Geom=\d*,\d*)\d*(,\d+.*)", rf"\g<1>{bottom_elevtn}\g<2>",
+                                waiting_matriz[0, 1, 0])
 
             if tem_valor(lista[3]):
-                change = re.sub(r"([^,]+[^,]+[^,]+)2.8([^,]+[^,]+[^,]+)", rf"\g<1>{output_interval}", change)
-
+                change = re.sub(r"(Geom=\d*,\d*,\d*)\d*(,\d+.*)", rf"\g<1>{left_side}\g<2>",
+                                waiting_matriz[0, 1, 0])
             if tem_valor(lista[4]):
-                print("changing data")
-                change = re.sub(r"([^,]+[^,]+[^,]+)2.8([^,]+[^,]+[^,]+)",
-                                rf"Date={date_start},\g<2>,\g<3>,\g<4>", change)
-
+                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*)\d*(,\d+.*)", rf"\g<1>{right_side}\g<2>",
+                                waiting_matriz[0, 1, 0])
             if tem_valor(lista[5]):
-                print("changing data")
-                change = re.sub(r"([^,]+[^,]+[^,]+)0.7([^,]+[^,]+[^,]+)",
-                                rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
+                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*\d*)\d*(,\d+.*)", rf"\g<1>{breach_time}\g<2>",
+                                waiting_matriz[0, 1, 0])
             if tem_valor(lista[6]):
-                print("changing data")
-                change = re.sub(r"([^,]+[^,]+[^,]+)2.8",
-                                rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
+                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*\d*,\d*)\d*(,\d+.*)", rf"\g<1>{breach_weir}\g<2>",
+                                waiting_matriz[0, 1, 0])
             if tem_valor(lista[7]):
-                print("changing data")
-                change = re.sub(r"Start=True([^,]+[^,]+[^,]+)\d+([^,]+[^,]+[^,]+)",
-                                rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
-
+                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*\d*,\d*,\d*)\d*(,.*)", rf"\g<1>{starting_ws}\g<2>",
+                                waiting_matriz[0, 1, 0])
             try:
                 bco = hec.CurrentPlanFile()
                 with open(bco, 'w', encoding='utf-8', errors='ignore') as f:
@@ -470,8 +468,7 @@ class Backend():
             print(change)
             waiting_matriz[(0, 0, 1)] = change
             hec.QuitRas()
-        except Exception as e:
-        print(f"ERRO: {e}")
+
 
             #center station
             #final bottom width
