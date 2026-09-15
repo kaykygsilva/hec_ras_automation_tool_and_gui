@@ -170,65 +170,51 @@ class Backend():
             numb_simulation_waiting += 1
             try:
                 print("beginning the editing while running")
-                # print(waiting_matriz[numb_simulation_waiting - 1, 1, 0])
-                # open the waiting matriz and find in the last file - if the first editing, find in the original file
-                computation = re.search(r"Computation Interval=(\d+\w+)",
-                                        waiting_matriz[numb_simulation_waiting - 1, 1, 0])
-                profile = re.search(r"Instantaneous Interval=(\d+\w+)",
-                                    waiting_matriz[numb_simulation_waiting - 1, 1, 0])
-                mapping = re.search(r"Mapping Interval=(\d+\w+)",
-                                    waiting_matriz[numb_simulation_waiting - 1, 1, 0])
-                hydrograph = re.search(r"Output Interval=(\d+\w+)",
-                                       waiting_matriz[numb_simulation_waiting - 1, 1, 0])
+                waiting_matriz[numb_simulation_waiting,1,0] = waiting_matriz[numb_simulation_waiting-1,1,0]
 
+                def tem_valor(v):
+                    return isinstance(v, str) and v.strip() != ""
+
+                comput_interval = str(lista[0]).upper()
+                instantenous_interval = str(lista[1]).upper()
+                mapping_interval = str(lista[2]).upper()
+                output_interval = str(lista[3]).upper()
                 date_start = lista[4].upper()
                 date_end = lista[5].upper()
 
-                if computation:
-                    computation_result = computation.group(1)
-                if profile:
-                    profile_result = profile.group(1)
-                if mapping:
-                    mapping_result = mapping.group(1)
-                if hydrograph:
-                    hydrograph_result = hydrograph.group(1)
 
-                if isinstance(lista[0], str) and lista[0]:
-                    change = re.sub(r"Computation Interval=.*", f"Computation Interval={lista[0]}", change)
+                if tem_valor(lista[0]):
+                    change = re.sub(r"(Computation Interval=)\d*\w*", rf"\g<1>{comput_interval}",
+                                    waiting_matriz[numb_simulation_waiting, 1, 0])
+                else:
+                    change = waiting_matriz[numb_simulation_waiting, 1, 0]
 
-                if isinstance(lista[1], str) and lista[1]:
-                    change = re.sub(r"Instantaneous Interval=.*", f"Instantaneous Interval={lista[1]}", change)
+                if tem_valor(lista[1]):
+                    change = re.sub(r"(Instantaneous Interval=)\d*\w*", rf"\g<1>{instantenous_interval}", change)
 
-                if isinstance(lista[2], str) and lista[2]:
-                    change = re.sub(r"Mapping Interval=.*", f"Mapping Interval={lista[2]}", change)
+                if tem_valor(lista[2]):
+                    change = re.sub(r"(Mapping Interval=)\d*\w*", rf"\g<1>{mapping_interval}", change)
 
-                if isinstance(lista[3], str) and lista[3]:
-                    change = re.sub(r"Output Interval=.*", f"Output Interval={lista[3]}", change)
+                if tem_valor(lista[3]):
+                    change = re.sub(r"(Output Interval=)\d*\w*", rf"\g<1>{output_interval}", change)
 
-                # Substituição da Data Inicial (lista[4])
-                #there is a problem here
-                #when we change the date the word 'date' gets out
-                if isinstance(lista[4], str) and lista[4]:
-                    change = re.sub(
-                        r"Date=([^,]+),([^,]+),([^,]+),([^,]+)",
-                        rf"Date={date_start},\g<2>,\g<3>,\g<4>",
-                        change
-                    )
+                if tem_valor(lista[4]):
+                    print("changing data")
+                    change = re.sub(r"Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
+                                    rf"Date={date_start},\g<2>,\g<3>,\g<4>", change)
 
-                # Substituição da Data Final (lista[5])
-                if isinstance(lista[5], str) and lista[5]:
-                    change = re.sub(
-                        r"Date=([^,]+),([^,]+),([^,]+),([^,]+)",
-                        rf"Date=\g<1>,\g<2>,{date_end},\g<4>",
-                        change
-                    )
+                if tem_valor(lista[5]):
+                    print("changing data")
+                    change = re.sub(r"Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
+                                    rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
+
 
                 # change = re.sub(fr"{list(change.split('\n'))[20]}", f"{list(change.split('\n'))[20]}_{numb_simulation_done}", change)
 
-                change = Backend().change_guid(change)
+                #change = Backend().change_guid(change)
                 # print(change)
                 waiting_matriz[numb_simulation_waiting, 1, 0] = change
-                print(change)
+                print(waiting_matriz[numb_simulation_waiting, 1, 0])
                 return "DONE!!", change
 
 
@@ -245,47 +231,44 @@ class Backend():
         else:
             # with open(plan_dir,'r', encoding='utf-8', errors='ignore') as f:
             try:
-                print(waiting_matriz[0, 1, 0])
+                #print(waiting_matriz[0, 1, 0])
                 # file_split = list(arquivo_bco.split("\n"))
 
-                # positions: comput 22, profile 24, hydrograph 25
-                # get with search the ocurrance and salved it
-                computation = re.search(r"Computation Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
-                profile = re.search(r"Instantaneous Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
-                mapping = re.search(r"Mapping Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
-                hydrograph = re.search(r"Output Interval=(\d+)\w+", waiting_matriz[0, 1, 0])
 
+                def tem_valor(v):
+                    return isinstance(v, str) and v.strip() != ""
+
+                comput_interval = str(lista[0]).upper()
+                instantenous_interval = str(lista[1]).upper()
+                mapping_interval = str(lista[2]).upper()
+                output_interval = str(lista[3]).upper()
                 date_start = str(lista[4]).upper()
                 date_end = str(lista[5]).upper()
 
-                if computation:
-                    computation_result = computation.group(1)
-                if profile:
-                    profile_result = profile.group(1)
-                if mapping:
-                    mapping_result = mapping.group(1)
-                if hydrograph:
-                    hydrograph_result = hydrograph.group(1)
-
-                if isinstance(lista[0], str):
-                    change = re.sub(r"(Computation Interval=)\d+(\w+)", rf"\g<1>{lista[0]}\g<2>",
+                if tem_valor(lista[0]):
+                    change = re.sub(r"(Computation Interval=)\d*\w*", rf"\g<1>{comput_interval}",
                                     waiting_matriz[0, 1, 0])
                 else:
                     change = waiting_matriz[0, 1, 0]
-                if isinstance(lista[1], str):
-                    change = re.sub(r"(Instantaneous Interval=)\d+(\w+)", rf"\g<1>{lista[1]}\g<2>", change)
-                if isinstance(lista[2], str):
-                    change = re.sub(r"(Mapping Interval=)\d+(\w+)", rf"\g<1>{lista[2]}\g<2>", change)
-                if isinstance(lista[3], str):
-                    change = re.sub(r"(Output Interval=)\d+(\w+)", rf"\g<1>{lista[3]}\g<2>", change)
-                if isinstance(lista[4], str):
-                    change = re.sub(r"\w*\s*Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
-                                    rf"{date_start},\g<2>,\g<3>,\g<4>", change)
-                if isinstance(lista[5], str):
+
+                if tem_valor(lista[1]):
+                    change = re.sub(r"(Instantaneous Interval=)\d*\w*", rf"\g<1>{instantenous_interval}", change)
+
+                if tem_valor(lista[2]):
+                    change = re.sub(r"(Mapping Interval=)\d*\w*", rf"\g<1>{mapping_interval}", change)
+
+                if tem_valor(lista[3]):
+                    change = re.sub(r"(Output Interval=)\d*\w*", rf"\g<1>{output_interval}", change)
+
+                if tem_valor(lista[4]):
                     print("changing data")
-                    change = re.sub(r"\w*\s*Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
-                                    rf"\g<1>,\g<2>,{date_end},\g<4>",
-                                    change)
+                    change = re.sub(r"Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
+                                    rf"Date={date_start},\g<2>,\g<3>,\g<4>", change)
+
+                if tem_valor(lista[5]):
+                    print("changing data")
+                    change = re.sub(r"Date=(\d+\w+\d+),([^,]+),(\d+\w+\d+),([^,]+)",
+                                    rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
 
                 try:
                     bco = hec.CurrentPlanFile()
@@ -295,9 +278,10 @@ class Backend():
                     # change_guid(hec,plano)
                     # hec.ShowRas()
                     waiting_matriz[0, 1, 0] = change
+                    print(waiting_matriz[0,1,0])
                     hec.Project_Open(dir_project)
                     hec.Plan_SetCurrent(bco)
-                    return "DONE!!", change
+                    return "DONE!!", waiting_matriz[0,1,0]
                 except Exception as e:
                     return f"ERRO: {e}"
                 print(change)
@@ -416,6 +400,90 @@ class Backend():
                 break
 
         return k
+
+    def change_breach_plan(self,*lista):
+        """" 'Breach', 'Geom=35,50,55,2.8,2.8,False,0.5,,0.7,2.8', 'Breach', 'Start=True,69,22SEP2026,04:00,False,69,2,0', 'Breach'"""
+        global waiting_matriz
+
+        if running:
+            pass
+        else:
+            def tem_valor(v):
+                return isinstance(v, str) and v.strip() != ""
+
+            center_stion = str(lista[0]).upper()
+            bottom_width = str(lista[1]).upper()
+            bottom_elevtn = str(lista[2]).upper()
+            left_side = str(lista[3]).upper()
+            right_side = str(lista[4]).upper()
+            breach_time = str(lista[5]).upper()
+            breach_weir = str(lista[6]).upper()
+            starting_ws = str(lista[7]).upper()
+
+            if tem_valor(lista[0]):
+                change = re.sub(r"(Geom=)35([^,]+[^,]+[^,]+)", rf"\g<1>{center_stion}\g<2>",
+                                waiting_matriz[0, 1, 0])
+            else:
+                change = waiting_matriz[0, 1, 0]
+
+            if tem_valor(lista[1]):
+                change = re.sub(r"([^,]+[^,]+[^,]+)50([^,]+[^,]+[^,]+)", rf"\g<1>{bottom_width}", change)
+
+            if tem_valor(lista[2]):
+                change = re.sub(r"([^,]+[^,]+[^,]+)55([^,]+[^,]+[^,]+)", rf"\g<1>{mapping_interval}", change)
+
+            if tem_valor(lista[3]):
+                change = re.sub(r"([^,]+[^,]+[^,]+)2.8([^,]+[^,]+[^,]+)", rf"\g<1>{output_interval}", change)
+
+            if tem_valor(lista[4]):
+                print("changing data")
+                change = re.sub(r"([^,]+[^,]+[^,]+)2.8([^,]+[^,]+[^,]+)",
+                                rf"Date={date_start},\g<2>,\g<3>,\g<4>", change)
+
+            if tem_valor(lista[5]):
+                print("changing data")
+                change = re.sub(r"([^,]+[^,]+[^,]+)0.7([^,]+[^,]+[^,]+)",
+                                rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
+            if tem_valor(lista[6]):
+                print("changing data")
+                change = re.sub(r"([^,]+[^,]+[^,]+)2.8",
+                                rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
+            if tem_valor(lista[7]):
+                print("changing data")
+                change = re.sub(r"Start=True([^,]+[^,]+[^,]+)\d+([^,]+[^,]+[^,]+)",
+                                rf"Date=\g<1>,\g<2>,{date_end},\g<4>", change)
+
+            try:
+                bco = hec.CurrentPlanFile()
+                with open(bco, 'w', encoding='utf-8', errors='ignore') as f:
+                    f.write(change)
+
+                # change_guid(hec,plano)
+                # hec.ShowRas()
+                waiting_matriz[0, 1, 0] = change
+                print(waiting_matriz[0, 1, 0])
+                hec.Project_Open(dir_project)
+                hec.Plan_SetCurrent(bco)
+                return "DONE!!", waiting_matriz[0, 1, 0]
+            except Exception as e:
+                return f"ERRO: {e}"
+            print(change)
+            waiting_matriz[(0, 0, 1)] = change
+            hec.QuitRas()
+        except Exception as e:
+        print(f"ERRO: {e}")
+
+            #center station
+            #final bottom width
+            #final bottom elevation
+            #left side slope
+            #right side slope
+            #failure mode, piping coeficient, inicial piping elev
+            #breach formattion time
+            #breach weir coef
+            #'Start' means like "breach this structure"
+            #third value or the -third value is the 'starting ws'
+
 
     def end_hec(self):
         global hec

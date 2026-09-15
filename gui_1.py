@@ -265,7 +265,7 @@ class Aplication():
                 # backend_hecras.numb_simulation_waiting += 1
                 print(
                     f"{compt_var.get()}, {mapp_var.get()}, {hydrogp_var.get()}, {detailed_var.get()}, {date_start_var.get()}, {date_end_var.get()}")
-                lista_chngs = [compt_var.get(), mapp_var.get(), hydrogp_var.get(), detailed_var.get(),
+                lista_chngs = [compt_var.get(),mapp_var.get(),hydrogp_var.get(),detailed_var.get(),
                                date_start_var.get(), date_end_var.get()]
 
                 status, conteud = self.backend.change_run_window(*lista_chngs)
