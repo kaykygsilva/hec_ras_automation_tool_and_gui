@@ -255,23 +255,39 @@ class Aplication():
                     f"{compt_var.get()}, {mapp_var.get()}, {hydrogp_var.get()}, {detailed_var.get()}, {date_start_var.get()}, {date_end_var.get()}")
                 lista_chngs = [compt_var.get(), mapp_var.get(), hydrogp_var.get(), detailed_var.get(),
                                date_start_var.get(), date_end_var.get()]
+                print(
+                    f"{centerstat_var.get()}, {bottomwdth_var.get()}, {bottomelv_var.get()}, {leftsd_var.get()}, {rightsd_var.get()}, {breachtm_var.get()}, {breachwr_var.get()}, {startingws_var}")
+                lista_chngs_breach = [centerstat_var.get(), bottomwdth_var.get(), bottomelv_var.get(), leftsd_var.get(),
+                                      rightsd_var.get(),
+                                      breachtm_var.get(), breachwr_var.get(), startingws_var]
+
+
 
                 status, conteud = self.backend.change_run_window(*lista_chngs)
+                self.backend.change_breach_plan(*lista_chngs_breach)
                 btn_sendchng.config(text=status)
-                btn_sendchng.place(relwidth=0.14)
+                btn_sendchng.place(relwidth=0.12)
                 resume_variables.set(conteud)
             else:
-                self.backend.running = True
+                #self.backend.running = True
                 # backend_hecras.numb_simulation_waiting += 1
                 print(
                     f"{compt_var.get()}, {mapp_var.get()}, {hydrogp_var.get()}, {detailed_var.get()}, {date_start_var.get()}, {date_end_var.get()}")
                 lista_chngs = [compt_var.get(),mapp_var.get(),hydrogp_var.get(),detailed_var.get(),
                                date_start_var.get(), date_end_var.get()]
 
+                #sending the breach plan parametres
+                print(
+                    f"{centerstat_var.get()}, {bottomwdth_var.get()}, {bottomelv_var.get()}, {leftsd_var.get()}, {rightsd_var.get()}, {breachtm_var.get()}, {breachwr_var.get()}, {startingws_var}")
+                lista_chngs_breach = [centerstat_var.get(), bottomwdth_var.get(), bottomelv_var.get(), leftsd_var.get(), rightsd_var.get(),
+                               breachtm_var.get(), breachwr_var.get(), startingws_var]
+
+                self.backend.change_breach_plan(*lista_chngs_breach)
                 status, conteud = self.backend.change_run_window(*lista_chngs)
                 btn_sendchng.config(text=status)
-                btn_sendchng.place(relwidth=0.14)
+                btn_sendchng.place(relwidth=0.12)
                 resume_variables.set(conteud)
+
 
         # def for continous checking
         # it is about the status of simulation: if finished or not

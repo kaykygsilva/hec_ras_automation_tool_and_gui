@@ -278,7 +278,8 @@ class Backend():
                     # change_guid(hec,plano)
                     # hec.ShowRas()
                     waiting_matriz[0, 1, 0] = change
-                    print(waiting_matriz[0,1,0])
+
+                    print(waiting_matriz[0,1,0].split())
                     hec.Project_Open(dir_project)
                     hec.Plan_SetCurrent(bco)
                     return "DONE!!", waiting_matriz[0,1,0]
@@ -402,70 +403,91 @@ class Backend():
         return k
 
     def change_breach_plan(self,*lista):
-        """" 'Breach', 'Geom=35,50,55,2.8,2.8,False,0.5,,0.7,2.8', 'Breach', 'Start=True,69,22SEP2026,04:00,False,69,2,0', 'Breach'"""
-        global waiting_matriz
-
-
+        """" 'Breach', 'Geom=35,50,55,2.8,2.8,False,0.5,,0.3,2.8', 'Breach', 'Start=True,69,22SEP2026,04:00,False,69,2,0', 'Breach'"""
 
         if running:
             pass
         else:
-            def tem_valor(v):
-                return isinstance(v, str) and v.strip() != ""
-
-            center_stion = str(lista[0]).upper()
-            bottom_width = str(lista[1]).upper()
-            bottom_elevtn = str(lista[2]).upper()
-            left_side = str(lista[3]).upper()
-            right_side = str(lista[4]).upper()
-            breach_time = str(lista[5]).upper()
-            breach_weir = str(lista[6]).upper()
-            starting_ws = str(lista[7]).upper()
-
-            if tem_valor(lista[0]):
-                change = re.sub(r"(Geom=)\d*(,\d+.*)", rf"\g<1>{center_stion}\g<2>",
-                                waiting_matriz[0, 1, 0])
-            else:
-                change = waiting_matriz[0, 1, 0]
-
-            if tem_valor(lista[1]):
-                change = re.sub(r"(Geom=\d*,)\d*(,\d+.*)", rf"\g<1>{bottom_width}\g<2>",
-                                waiting_matriz[0, 1, 0])
-
-            if tem_valor(lista[2]):
-                change = re.sub(r"(Geom=\d*,\d*)\d*(,\d+.*)", rf"\g<1>{bottom_elevtn}\g<2>",
-                                waiting_matriz[0, 1, 0])
-
-            if tem_valor(lista[3]):
-                change = re.sub(r"(Geom=\d*,\d*,\d*)\d*(,\d+.*)", rf"\g<1>{left_side}\g<2>",
-                                waiting_matriz[0, 1, 0])
-            if tem_valor(lista[4]):
-                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*)\d*(,\d+.*)", rf"\g<1>{right_side}\g<2>",
-                                waiting_matriz[0, 1, 0])
-            if tem_valor(lista[5]):
-                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*\d*)\d*(,\d+.*)", rf"\g<1>{breach_time}\g<2>",
-                                waiting_matriz[0, 1, 0])
-            if tem_valor(lista[6]):
-                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*\d*,\d*)\d*(,\d+.*)", rf"\g<1>{breach_weir}\g<2>",
-                                waiting_matriz[0, 1, 0])
-            if tem_valor(lista[7]):
-                change = re.sub(r"(Geom=\d*,\d*,\d*,\d*\d*,\d*,\d*)\d*(,.*)", rf"\g<1>{starting_ws}\g<2>",
-                                waiting_matriz[0, 1, 0])
             try:
-                bco = hec.CurrentPlanFile()
-                with open(bco, 'w', encoding='utf-8', errors='ignore') as f:
-                    f.write(change)
+                global waiting_matriz
+                change = waiting_matriz[0,1,0]
 
-                # change_guid(hec,plano)
-                # hec.ShowRas()
-                waiting_matriz[0, 1, 0] = change
-                print(waiting_matriz[0, 1, 0])
-                hec.Project_Open(dir_project)
-                hec.Plan_SetCurrent(bco)
-                return "DONE!!", waiting_matriz[0, 1, 0]
+                def tem_valor(v):
+                    return isinstance(v, str) and v.strip() != ""
+
+                center_stion = str(lista[0]).upper()
+                bottom_width = str(lista[1]).upper()
+                bottom_elevtn = str(lista[2]).upper()
+                left_side = str(lista[3]).upper()
+                right_side = str(lista[4]).upper()
+                breach_time = str(lista[5]).upper()
+                breach_weir = str(lista[6]).upper()
+                starting_ws = str(lista[7]).upper()
+
+                abc = re.search(r"Geom=.*", waiting_matriz[0, 1, 0])
+                geom_lista = abc.group().replace("Geom=","").split(",")
+                print(geom_lista)
+
+                abc_ = re.search(r"Start=.*", waiting_matriz[0, 1, 0])
+                string_ws = abc_.group().replace("Start=","").split(",")
+                print(string_ws)
+
+                if tem_valor(lista[7]):
+                    string_ws[1] = starting_ws
+                    string_ws[-2] = starting_ws
+
+                if tem_valor(lista[0]):
+                    geom_lista[0] = center_stion
+
+                if tem_valor(lista[1]):
+                    geom_lista[1] = bottom_width
+
+                if tem_valor(lista[2]):
+                    geom_lista[2] = bottom_elevtn
+
+
+                if tem_valor(lista[3]):
+                    geom_lista[3] = left_side
+
+                if tem_valor(lista[4]):
+                    geom_lista[4] = right_side
+
+                if tem_valor(lista[5]):
+                    geom_lista[8] = breach_time
+                    print("Trocado breach")
+
+                if tem_valor(lista[6]):
+                    geom_lista[9] = breach_weir
+
+
+                if re.search(r"Geom=.*", waiting_matriz[0, 1, 0]):
+                    nova_lista = "Geom="+",".join(geom_lista)
+                    change = re.sub(r"Geom=.*", nova_lista, waiting_matriz[0, 1, 0])
+
+                if re.search(r"Start=.*", change):
+                    nova_lista_ = "Start="+",".join(starting_ws)
+                    change = re.sub(r"Start=.*", nova_lista_, change)
+
+                try:
+                    bco = hec.CurrentPlanFile()
+                    with open(bco, 'w', encoding='utf-8', errors='ignore') as f:
+                        f.write(change)
+
+                    # change_guid(hec,plano)
+                    # hec.ShowRas()
+                    waiting_matriz[0, 1, 0] = change
+                    print(waiting_matriz[0, 1, 0].split())
+                    hec.Project_Open(dir_project)
+                    hec.Plan_SetCurrent(bco)
+                    return "DONE!!", waiting_matriz[0, 1, 0]
+                    
+                except Exception as e:
+                    return f"ERRO: {e}"
+
+
             except Exception as e:
                 return f"ERRO: {e}"
-            print(change)
+            #print(change)
             waiting_matriz[(0, 0, 1)] = change
             hec.QuitRas()
 
